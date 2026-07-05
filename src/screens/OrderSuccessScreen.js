@@ -1,20 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Animated, Linking,
+  Animated, Linking, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import api from '../api/client';
 import { formatCurrency } from '../utils/formatters';
 import { COLORS, FONTS, SPACING } from '../constants';
 
 export default function OrderSuccessScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { order, autoSent, pdfUrl } = route.params ?? {};
+  const { order: routeOrder, autoSent, pdfUrl: routePdfUrl, orderId } = route.params ?? {};
+  const [order, setOrder] = useState(routeOrder ?? null);
+  const [pdfUrl, setPdfUrl] = useState(routePdfUrl ?? null);
+  const [loading, setLoading] = useState(!routeOrder && !!orderId);
+
+  const fetchOrder = useCallback(async () => {
+    if (!orderId || routeOrder) return;
+    setLoading(true);
+    try {
+      const { data } = await api.get(`/orders/${orderId}`);
+      setOrder(data);
+    } catch {
+      setOrder(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [orderId, routeOrder]);
+
+  useEffect(() => { fetchOrder(); }, [fetchOrder]);
+
+  const fetchInvoiceUrl = useCallback(async () => {
+    if (pdfUrl || !order?._id) return;
+    try {
+      const { data } = await api.get(`/orders/${order._id}/invoice`);
+      setPdfUrl(data.url ?? data.pdfUrl ?? null);
+    } catch {}
+  }, [order, pdfUrl]);
+
+  useEffect(() => { fetchInvoiceUrl(); }, [fetchInvoiceUrl]);
 
   const [step, setStep] = useState(0);
   const heroScale = useRef(new Animated.Value(0.3)).current;
@@ -43,10 +72,30 @@ export default function OrderSuccessScreen() {
     return () => [t1, t2, t3].forEach(clearTimeout);
   }, [heroScale, heroOpacity, order]);
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <LinearGradient
+          colors={[COLORS.navyDark, COLORS.navy, '#2A5298']}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.noOrderWrap}>
+          <ActivityIndicator size="large" color={COLORS.champagne} />
+          <Text style={{ color: COLORS.white, marginTop: 12 }}>Fetching order details...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   if (!order) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
+        <LinearGradient
+          colors={[COLORS.navyDark, COLORS.navy, '#2A5298']}
+          style={StyleSheet.absoluteFill}
+        />
         <View style={styles.noOrderWrap}>
+          <Ionicons name="receipt-outline" size={48} color="rgba(255,255,255,0.3)" />
           <Text style={styles.noOrderText}>No order data found.</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Main')}>
             <Text style={styles.noOrderLink}>Go Home</Text>
@@ -72,10 +121,11 @@ export default function OrderSuccessScreen() {
 
   const openPdf = async () => {
     if (!pdfUrl) return;
+    const fullUrl = pdfUrl.startsWith('http') ? pdfUrl : `${api.defaults.baseURL?.replace('/api', '')}${pdfUrl}`;
     try {
-      await WebBrowser.openBrowserAsync(pdfUrl);
+      await WebBrowser.openBrowserAsync(fullUrl);
     } catch {
-      Linking.openURL(pdfUrl);
+      Linking.openURL(fullUrl);
     }
   };
 

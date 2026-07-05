@@ -101,8 +101,13 @@ export default function HomeScreen() {
       {/* ── Sticky header ── */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerBrand}>Adiyogi International</Text>
-          <Text style={styles.headerSub}>Bhoomi Agrotech · Vijaypur</Text>
+          <View style={styles.headerRow}>
+            <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+            <View>
+              <Text style={styles.headerBrand}>Adiyogi International</Text>
+              <Text style={styles.headerSub}>Bhoomi Agrotech · Vijaypur</Text>
+            </View>
+          </View>
         </View>
         <TouchableOpacity
           style={styles.cartBtn}
@@ -136,6 +141,7 @@ export default function HomeScreen() {
           style={styles.hero}
         >
           <View style={styles.heroBadge}>
+            <Image source={require('../../assets/logo.png')} style={styles.heroLogo} resizeMode="contain" />
             <Text style={styles.heroBadgeBrand}>Adiyogi International</Text>
             <View style={styles.heroDivider} />
             <Text style={styles.heroBadgeSub}>Bhoomi Agrotech · Vijaypur</Text>
@@ -389,6 +395,13 @@ export default function HomeScreen() {
                   <Text style={styles.footerLinkText}>{link.label}</Text>
                 </View>
               ))}
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AdminLogin')}
+                style={[styles.footerLink, { marginTop: 8 }]}
+              >
+                <Ionicons name="shield-outline" size={14} color={COLORS.champagne} />
+                <Text style={[styles.footerLinkText, { color: COLORS.champagne }]}>Admin Panel</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Contact column */}
@@ -491,6 +504,8 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(255,255,255,0.08)',
   },
   headerLeft: {},
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerLogo: { width: 36, height: 36, borderRadius: 8 },
   headerBrand: {
     fontFamily: FONTS.display,
     fontSize: 15,
@@ -524,6 +539,11 @@ const styles = StyleSheet.create({
     paddingTop: 36,
     paddingBottom: 40,
     alignItems: 'center',
+  },
+  heroLogo: {
+    width: 60,
+    height: 60,
+    marginBottom: 8,
   },
   heroBadge: {
     borderWidth: 1,
