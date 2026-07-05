@@ -12,6 +12,11 @@ import ProductDetailScreen from '../screens/ProductDetailScreen';
 import CartScreen from '../screens/CartScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import OrderSuccessScreen from '../screens/OrderSuccessScreen';
+import AdminLoginScreen from '../screens/AdminLoginScreen';
+import AdminDashboardScreen from '../screens/AdminDashboardScreen';
+import AdminOrdersScreen from '../screens/AdminOrdersScreen';
+import AdminProductsScreen from '../screens/AdminProductsScreen';
+import AdminCollectionsScreen from '../screens/AdminCollectionsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -92,6 +97,31 @@ export default function AppNavigator() {
           name="OrderSuccess"
           component={OrderSuccessScreen}
           options={{ animation: 'fade', gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="AdminLogin"
+          component={AdminLoginScreen}
+          options={{ animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen
+          name="AdminDashboard"
+          component={AdminDashboardScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="AdminOrders"
+          component={AdminOrdersScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="AdminProducts"
+          component={AdminProductsScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="AdminCollections"
+          component={AdminCollectionsScreen}
+          options={{ animation: 'slide_from_right' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
