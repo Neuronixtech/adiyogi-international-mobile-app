@@ -41,7 +41,7 @@ function TabNavigator() {
         tabBarInactiveTintColor: COLORS.gray400,
         tabBarStyle: {
           backgroundColor: COLORS.navyDark,
-          borderTopColor: 'rgba(255,255,255,0.08)',
+          borderTopColor: 'rgba(201,168,76,0.15)',
           height: 60,
           paddingBottom: 8,
           paddingTop: 4,

@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/formatters';
-import { COLORS, FONTS, SPACING } from '../constants';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../constants';
 
 export default function CartScreen() {
   const navigation = useNavigation();
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.display,
     fontSize: 22,
     fontWeight: 'bold',
-    color: COLORS.gray600,
+    color: COLORS.bodyText,
     marginBottom: 8,
   },
   emptyDesc: {
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.navy,
     paddingHorizontal: 28,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: RADIUS.md,
   },
   browseBtnText: { color: COLORS.white, fontWeight: '700', fontSize: 15 },
 
@@ -221,19 +221,15 @@ const styles = StyleSheet.create({
   cartItem: {
     flexDirection: 'row',
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     padding: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    ...SHADOWS.sm,
     gap: 10,
   },
   cartItemImage: {
     width: 70,
     height: 70,
-    borderRadius: 10,
+    borderRadius: RADIUS.sm,
     overflow: 'hidden',
     backgroundColor: COLORS.gray50,
     flexShrink: 0,
@@ -296,20 +292,16 @@ const styles = StyleSheet.create({
   // Summary
   summaryCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     padding: 16,
     marginTop: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
+    ...SHADOWS.sm,
   },
   summaryTitle: {
     fontFamily: FONTS.display,
     fontSize: 16,
     fontWeight: 'bold',
-    color: COLORS.navy,
+    color: COLORS.bodyText,
     marginBottom: 12,
   },
   summaryRow: {
@@ -373,7 +365,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     backgroundColor: COLORS.champagne,
-    borderRadius: 14,
+    borderRadius: RADIUS.md,
     paddingVertical: 14,
   },
   checkoutBtnText: {

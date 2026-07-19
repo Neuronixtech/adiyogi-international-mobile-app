@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   TextInput, ActivityIndicator, RefreshControl, Linking,
@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import ProductCard from '../components/ProductCard';
 import NewArrivalsCarousel from '../components/NewArrivalsCarousel';
-import { COLORS, FONTS, SPACING, ITEMS_PER_PAGE } from '../constants';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS, ITEMS_PER_PAGE } from '../constants';
 import { useCart } from '../context/CartContext';
 import { cachedGet, clearCachedPrefix } from '../api/cachedApi';
 
@@ -19,6 +19,9 @@ const PHONE_NUMBERS = ['7975198804', '8123458984', '8722812222'];
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const scrollRef = useRef(null);
+  const [collectionsY, setCollectionsY] = useState(0);
+  const productsSectionHeight = useRef(0);
   const { cartCount } = useCart();
 
   const [collections, setCollections] = useState([]);
@@ -126,6 +129,7 @@ export default function HomeScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -170,11 +174,26 @@ export default function HomeScreen() {
           </Text>
 
           <View style={styles.heroCtas}>
-            <TouchableOpacity style={styles.ctaPrimary}>
+            <TouchableOpacity
+              style={styles.ctaPrimary}
+              onPress={() =>
+                navigation.navigate('Products', {
+                  collectionId: null,
+                  collectionName: 'All Products',
+                })
+              }
+            >
               <Text style={styles.ctaPrimaryText}>Shop Now</Text>
               <Ionicons name="arrow-forward" size={16} color="#fff" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ctaSecondary}>
+            <TouchableOpacity
+              style={styles.ctaSecondary}
+              onPress={() => {
+                if (collectionsY > 0 && scrollRef.current) {
+                  scrollRef.current.scrollTo({ y: collectionsY, animated: true });
+                }
+              }}
+            >
               <Text style={styles.ctaSecondaryText}>View Collections</Text>
             </TouchableOpacity>
           </View>
@@ -331,7 +350,16 @@ export default function HomeScreen() {
         </View>
 
         {/* ── COLLECTIONS GRID ── */}
-        <View style={styles.section}>
+        <View
+          style={styles.section}
+          onLayout={(e) => {
+            const absY = e.nativeEvent.layout.y;
+            if (collectionsY === 0) setCollectionsY(absY);
+            else if (absY > collectionsY) {
+              setCollectionsY(absY);
+            }
+          }}
+        >
           <Text style={styles.sectionLabel}>Browse By</Text>
           <Text style={styles.sectionTitle}>Our Collections</Text>
           <View style={styles.collectionsGrid}>
@@ -353,7 +381,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ── HOW TO ORDER ── */}
-        <View style={[styles.section, { backgroundColor: COLORS.ivory }]}>
+        <View style={styles.section}>
           <Text style={styles.sectionLabel}>Simple & Easy</Text>
           <Text style={styles.sectionTitle}>How to Place an Order</Text>
           <View style={styles.howToGrid}>
@@ -493,22 +521,23 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     backgroundColor: COLORS.navyDark,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    borderBottomColor: 'rgba(201,168,76,0.25)',
   },
   headerLeft: {},
-  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  headerLogo: { width: 36, height: 36, borderRadius: 8 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerLogo: { width: 44, height: 44, borderRadius: 10 },
   headerBrand: {
     fontFamily: FONTS.display,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 'bold',
     color: COLORS.champagne,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   headerSub: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.5)',
-    marginTop: 1,
+    letterSpacing: 0.5,
+    marginTop: 2,
   },
   cartBtn: { position: 'relative', padding: 4 },
   cartBadge: {
@@ -627,23 +656,23 @@ const styles = StyleSheet.create({
 
   // Sections
   section: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.ivory,
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xxl,
+    paddingVertical: SPACING.sectionMd,
   },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.champagne,
-    letterSpacing: 2,
+    letterSpacing: 1.1,
     textTransform: 'uppercase',
     marginBottom: 4,
   },
   sectionTitle: {
     fontFamily: FONTS.display,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.navy,
+    color: COLORS.bodyText,
     marginBottom: 16,
   },
 
@@ -706,14 +735,10 @@ const styles = StyleSheet.create({
   howToGrid: { gap: 12 },
   howToCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+    ...SHADOWS.sm,
   },
   howToIcon: { fontSize: 36, marginBottom: 8 },
   howToStep: {
@@ -755,11 +780,13 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gray100,
-    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 12,
     marginBottom: 12,
     height: 44,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
   },
   searchIcon: { marginRight: 8 },
   searchInput: {
@@ -774,9 +801,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: COLORS.gray100,
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
   },
-  chipActive: { backgroundColor: COLORS.navy },
+  chipActive: { backgroundColor: COLORS.navy, borderColor: COLORS.navy },
   chipText: { fontSize: 12, fontWeight: '600', color: COLORS.gray600 },
   chipTextActive: { color: COLORS.white },
 

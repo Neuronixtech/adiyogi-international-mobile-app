@@ -4,7 +4,7 @@ import {
   ScrollView, Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, FONTS } from '../constants';
+import { COLORS, FONTS, RADIUS, SHADOWS } from '../constants';
 import { formatCurrency } from '../utils/formatters';
 
 const { width: SCREEN_W } = Dimensions.get('window');

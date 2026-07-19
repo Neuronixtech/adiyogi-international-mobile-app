@@ -5,7 +5,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/formatters';
-import { COLORS, FONTS } from '../constants';
+import { COLORS, FONTS, RADIUS, SHADOWS } from '../constants';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2; // 16px outer padding each side + 16px gap
@@ -99,13 +99,9 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     backgroundColor: COLORS.white,
-    borderRadius: 14,
+    borderRadius: RADIUS.md,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    ...SHADOWS.sm,
     marginBottom: 12,
   },
   tappable: {

@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ProductCard from '../components/ProductCard';
-import { COLORS, FONTS, SPACING, ITEMS_PER_PAGE } from '../constants';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS, ITEMS_PER_PAGE } from '../constants';
 import { useCart } from '../context/CartContext';
 import { cachedGet } from '../api/cachedApi';
 
@@ -218,22 +218,23 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     backgroundColor: COLORS.navyDark,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    borderBottomColor: 'rgba(201,168,76,0.25)',
   },
   headerLeft: {},
-  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  headerLogo: { width: 36, height: 36, borderRadius: 8 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerLogo: { width: 44, height: 44, borderRadius: 10 },
   headerBrand: {
     fontFamily: FONTS.display,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 'bold',
     color: COLORS.champagne,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   headerSub: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.5)',
-    marginTop: 1,
+    letterSpacing: 0.5,
+    marginTop: 2,
   },
   cartBtn: { position: 'relative', padding: 4 },
   cartBadge: {
@@ -283,15 +284,15 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: COLORS.champagne,
-    letterSpacing: 2,
+    letterSpacing: 1.1,
     textTransform: 'uppercase',
     marginBottom: 4,
   },
   sectionTitle: {
     fontFamily: FONTS.display,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.navy,
+    color: COLORS.bodyText,
   },
   productCount: {
     fontFamily: FONTS.body,
@@ -304,12 +305,14 @@ const styles = StyleSheet.create({
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gray100,
-    borderRadius: 12,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.md,
     paddingHorizontal: 12,
     marginHorizontal: SPACING.lg,
     marginBottom: 16,
     height: 44,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
   },
   searchIcon: { marginRight: 8 },
   searchInput: {

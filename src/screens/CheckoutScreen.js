@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../api/client';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/formatters';
-import { COLORS, FONTS, SPACING } from '../constants';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../constants';
 
 export default function CheckoutScreen() {
   const navigation = useNavigation();
@@ -277,13 +277,9 @@ const styles = StyleSheet.create({
   // Form section
   formSection: {
     backgroundColor: COLORS.white,
-    borderRadius: 18,
+    borderRadius: RADIUS.xl,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...SHADOWS.sm,
   },
   formSectionHeader: {
     flexDirection: 'row',
@@ -325,7 +321,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: COLORS.gray200,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     backgroundColor: COLORS.white,
     paddingHorizontal: 12,
     height: 46,
@@ -335,7 +331,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 14,
-    color: COLORS.gray700,
+    color: COLORS.bodyText,
     paddingVertical: 0,
   },
   inputTextMulti: { minHeight: 70 },
@@ -346,13 +342,9 @@ const styles = StyleSheet.create({
   // Order summary
   summaryCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 18,
+    borderRadius: RADIUS.xl,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    ...SHADOWS.sm,
   },
   summaryTitle: {
     fontFamily: FONTS.display,
@@ -370,7 +362,7 @@ const styles = StyleSheet.create({
   summaryItemImg: {
     width: 42,
     height: 42,
-    borderRadius: 8,
+    borderRadius: RADIUS.sm,
     backgroundColor: COLORS.gray50,
     alignItems: 'center',
     justifyContent: 'center',
@@ -378,7 +370,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   summaryImg: { width: '100%', height: '100%' },
-  summaryItemName: { fontSize: 12, fontWeight: '600', color: COLORS.gray700 },
+  summaryItemName: { fontSize: 12, fontWeight: '600', color: COLORS.bodyText },
   summaryItemQty: { fontSize: 11, color: COLORS.gray400, marginTop: 2 },
   summaryItemTotal: { fontSize: 12, fontWeight: '700', color: COLORS.navy },
   summaryDivider: {
@@ -407,13 +399,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
     backgroundColor: COLORS.champagne,
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     paddingVertical: 16,
+    ...SHADOWS.md,
     shadowColor: COLORS.champagne,
-    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 4,
   },
   placeOrderBtnDisabled: { opacity: 0.6 },
   placeOrderText: {

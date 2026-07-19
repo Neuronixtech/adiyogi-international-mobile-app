@@ -10,7 +10,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { cachedGet } from '../api/cachedApi';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/formatters';
-import { COLORS, FONTS, SPACING } from '../constants';
+import { COLORS, FONTS, SPACING, RADIUS, SHADOWS } from '../constants';
 
 const { width } = Dimensions.get('window');
 
@@ -470,13 +470,13 @@ function ZoomableImage({ uri }) {
 }
 
 const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.ivory },
   loadingContainer: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.ivory,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  container: { flex: 1, backgroundColor: COLORS.white },
 
   // Header
   header: {
@@ -487,22 +487,23 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     backgroundColor: COLORS.navyDark,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.08)',
+    borderBottomColor: 'rgba(201,168,76,0.25)',
   },
   headerLeft: {},
-  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  headerLogo: { width: 36, height: 36, borderRadius: 8 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  headerLogo: { width: 44, height: 44, borderRadius: 10 },
   headerBrand: {
     fontFamily: FONTS.display,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 'bold',
     color: COLORS.champagne,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   headerSub: {
     fontSize: 11,
     color: 'rgba(255,255,255,0.5)',
-    marginTop: 1,
+    letterSpacing: 0.5,
+    marginTop: 2,
   },
   cartBtn: { position: 'relative', padding: 4 },
   cartBadge: {
@@ -541,7 +542,7 @@ const styles = StyleSheet.create({
 
   // Gallery
   gallerySection: {
-    backgroundColor: COLORS.gray50,
+    backgroundColor: COLORS.white,
     paddingBottom: 12,
   },
   mainImageWrap: {
@@ -623,10 +624,12 @@ const styles = StyleSheet.create({
   },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
-    backgroundColor: COLORS.gray100,
-    borderRadius: 10,
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.sm,
     padding: 8,
     minWidth: 90,
+    borderWidth: 1,
+    borderColor: COLORS.gray200,
   },
   chipGold: {
     backgroundColor: '#FFF8E8',
@@ -644,7 +647,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.display,
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.navy,
+    color: COLORS.bodyText,
     lineHeight: 26,
   },
   priceBlock: {
@@ -753,10 +756,9 @@ const styles = StyleSheet.create({
   // Description
   descBlock: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: RADIUS.md,
     padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.gray100,
+    ...SHADOWS.sm,
   },
   descTitle: {
     fontFamily: FONTS.display,
