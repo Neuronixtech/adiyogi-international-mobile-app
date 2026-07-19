@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Dimensions, Modal, FlatList, ActivityIndicator,
+  Image, Dimensions, Modal, Animated, PanResponder,
+  ActivityIndicator, TouchableWithoutFeedback,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -62,15 +63,20 @@ export default function ProductDetailScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={COLORS.navy} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>{product.name}</Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.headerRow}>
+            <Image source={require('../../assets/logo.png')} style={styles.headerLogo} resizeMode="contain" />
+            <View>
+              <Text style={styles.headerBrand}>Adiyogi International</Text>
+              <Text style={styles.headerSub}>Bhoomi Agrotech · Vijaypur</Text>
+            </View>
+          </View>
+        </View>
         <TouchableOpacity
-          onPress={() => navigation.navigate('CartTab')}
           style={styles.cartBtn}
+          onPress={() => navigation.navigate('CartTab')}
         >
-          <Ionicons name="cart-outline" size={22} color={COLORS.navy} />
+          <Ionicons name="cart-outline" size={26} color={COLORS.champagne} />
           {cart.length > 0 && (
             <View style={styles.cartBadge}>
               <Text style={styles.cartBadgeText}>
@@ -193,15 +199,14 @@ export default function ProductDetailScreen() {
           {/* Product name */}
           <Text style={styles.productName}>{product.name}</Text>
 
-          {/* Price block */}
+          {/* Price */}
           <View style={styles.priceBlock}>
-            <View style={styles.priceRow}>
-              <Text style={styles.price}>₹{formatCurrency(salesPrice)}</Text>
-            </View>
+            <Text style={styles.price}>₹{formatCurrency(salesPrice)}</Text>
+            <Text style={styles.slidePerPac}>/PAC</Text>
             {product.gstRate ? (
               <Text style={styles.gstNote}>
                 <Text style={styles.gstDot}>● </Text>
-                GST {product.gstRate}% included
+                GST {product.gstRate}%
               </Text>
             ) : null}
           </View>
@@ -291,24 +296,19 @@ export default function ProductDetailScreen() {
           >
             <Ionicons name="close" size={24} color={COLORS.white} />
           </TouchableOpacity>
-          <FlatList
-            data={images}
+          <ScrollView
             horizontal
             pagingEnabled
-            initialScrollIndex={selectedImg}
-            keyExtractor={(_, i) => String(i)}
-            getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
-            renderItem={({ item }) => (
-              <Image
-                source={{ uri: item }}
-                style={{ width, height: width }}
-                resizeMode="contain"
-              />
-            )}
+            showsHorizontalScrollIndicator={false}
+            contentOffset={{ x: selectedImg * width, y: 0 }}
             onMomentumScrollEnd={(e) => {
               setSelectedImg(Math.round(e.nativeEvent.contentOffset.x / width));
             }}
-          />
+          >
+            {images.map((item, i) => (
+              <ZoomableImage key={i} uri={item} />
+            ))}
+          </ScrollView>
           {images.length > 1 && (
             <View style={styles.zoomDots}>
               {images.map((_, i) => (
@@ -325,6 +325,151 @@ export default function ProductDetailScreen() {
   );
 }
 
+// ─── Zoomable Image (pure touch-based, no gesture-handler conflicts) ─────────
+function ZoomableImage({ uri }) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const txAnim = useRef(new Animated.Value(0)).current;
+  const tyAnim = useRef(new Animated.Value(0)).current;
+
+  const state = useRef({
+    scale: 1,
+    lastScale: 1,
+    tx: 0,
+    ty: 0,
+    lastTx: 0,
+    lastTy: 0,
+    lastPinchDist: 0,
+    lastDoubleTap: 0,
+    moved: false,
+  }).current;
+
+  const resetZoom = (animated = true) => {
+    state.scale = 1;
+    state.lastScale = 1;
+    state.tx = 0;
+    state.ty = 0;
+    state.lastTx = 0;
+    state.lastTy = 0;
+    if (animated) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
+        Animated.spring(txAnim, { toValue: 0, useNativeDriver: true }),
+        Animated.spring(tyAnim, { toValue: 0, useNativeDriver: true }),
+      ]).start();
+    } else {
+      scaleAnim.setValue(1);
+      txAnim.setValue(0);
+      tyAnim.setValue(0);
+    }
+  };
+
+  const panResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (_, g) =>
+      Math.abs(g.dx) > 2 || Math.abs(g.dy) > 2 || state.lastPinchDist > 0,
+
+    onPanResponderGrant: () => {
+      state.moved = false;
+    },
+
+    onPanResponderMove: (_, gestureState) => {
+      // Detect pinch (two fingers)
+      if (gestureState.numberActiveTouches === 2) {
+        const touches = gestureState._touches;
+        if (touches && touches.length >= 2) {
+          const dx = touches[0].locationX - touches[1].locationX;
+          const dy = touches[0].locationY - touches[1].locationY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (state.lastPinchDist > 0) {
+            const ratio = dist / state.lastPinchDist;
+            state.scale = Math.max(1, Math.min(state.lastScale * ratio, 5));
+            scaleAnim.setValue(state.scale);
+          }
+          state.lastPinchDist = dist;
+          state.moved = true;
+        }
+        return;
+      }
+
+      state.lastPinchDist = 0;
+
+      // Single-finger pan (only when zoomed)
+      if (state.lastScale > 1) {
+        state.tx = state.lastTx + gestureState.dx;
+        state.ty = state.lastTy + gestureState.dy;
+        txAnim.setValue(state.tx);
+        tyAnim.setValue(state.ty);
+        state.moved = true;
+      }
+    },
+
+    onPanResponderRelease: (_, gestureState) => {
+      state.lastPinchDist = 0;
+
+      // Snap back if scale < 1
+      if (state.scale < 1) {
+        state.scale = 1;
+        state.lastScale = 1;
+        state.tx = 0;
+        state.ty = 0;
+        state.lastTx = 0;
+        state.lastTy = 0;
+        Animated.parallel([
+          Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true }),
+          Animated.spring(txAnim, { toValue: 0, useNativeDriver: true }),
+          Animated.spring(tyAnim, { toValue: 0, useNativeDriver: true }),
+        ]).start();
+      } else {
+        state.lastScale = state.scale;
+        state.lastTx = state.tx;
+        state.lastTy = state.ty;
+      }
+    },
+  }), []);
+
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (now - state.lastDoubleTap < 300 && !state.moved) {
+      // Double tap detected
+      if (state.lastScale > 1) {
+        resetZoom(true);
+      } else {
+        state.scale = 2;
+        state.lastScale = 2;
+        Animated.spring(scaleAnim, { toValue: 2, useNativeDriver: true }).start();
+      }
+    }
+    state.lastDoubleTap = now;
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={handleDoubleTap}>
+      <View style={{ width, height: width }}>
+        <Animated.View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: [
+              { translateX: txAnim },
+              { translateY: tyAnim },
+              { scale: scaleAnim },
+            ],
+          }}
+          {...panResponder.panHandlers}
+        >
+          <Image
+            source={{ uri }}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="contain"
+          />
+        </Animated.View>
+      </View>
+    </TouchableWithoutFeedback>
+  );
+}
+
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
@@ -338,35 +483,42 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+    backgroundColor: COLORS.navyDark,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
-    backgroundColor: COLORS.white,
-    gap: 8,
+    borderBottomColor: 'rgba(255,255,255,0.08)',
   },
-  backBtn: { padding: 6 },
-  headerTitle: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.navy,
+  headerLeft: {},
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerLogo: { width: 36, height: 36, borderRadius: 8 },
+  headerBrand: {
     fontFamily: FONTS.display,
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: COLORS.champagne,
+    letterSpacing: 0.5,
   },
-  cartBtn: { position: 'relative', padding: 6 },
+  headerSub: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.5)',
+    marginTop: 1,
+  },
+  cartBtn: { position: 'relative', padding: 4 },
   cartBadge: {
     position: 'absolute',
-    top: 2,
-    right: 2,
+    top: 0,
+    right: 0,
     backgroundColor: COLORS.champagne,
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
+    borderRadius: 9,
+    minWidth: 18,
+    height: 18,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 3,
   },
-  cartBadgeText: { color: '#fff', fontSize: 9, fontWeight: 'bold' },
+  cartBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
 
   // Breadcrumb
   breadcrumb: {
@@ -395,7 +547,7 @@ const styles = StyleSheet.create({
   },
   mainImageWrap: {
     width,
-    height: width,
+    height: 300,
     backgroundColor: COLORS.white,
     position: 'relative',
     overflow: 'hidden',
@@ -438,12 +590,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   zoomHintText: { color: '#fff', fontSize: 10 },
-  thumbnails: { marginTop: 10 },
+  thumbnails: { marginTop: 8 },
   thumbnailsContent: { paddingHorizontal: 16, gap: 8 },
   thumb: {
-    width: 64,
-    height: 64,
-    borderRadius: 10,
+    width: 56,
+    height: 56,
+    borderRadius: 8,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: COLORS.gray200,
@@ -454,7 +606,7 @@ const styles = StyleSheet.create({
   // Info
   infoSection: {
     padding: SPACING.lg,
-    gap: 16,
+    gap: 12,
   },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   badge: {
@@ -491,66 +643,63 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontFamily: FONTS.display,
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.navy,
-    lineHeight: 32,
+    lineHeight: 26,
   },
   priceBlock: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: COLORS.gray100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
-  priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8 },
+  priceRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 6 },
   price: {
     fontFamily: FONTS.display,
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: '900',
     color: COLORS.navy,
   },
-  gstNote: { fontSize: 12, color: COLORS.gray400, marginTop: 6 },
+  gstNote: { fontSize: 11, color: COLORS.gray400 },
   gstDot: { color: COLORS.green },
+  slidePerPac: {
+    fontSize: 11,
+    color: COLORS.gray400,
+  },
 
   // Unit
   unitBlock: {
     backgroundColor: COLORS.navyBg,
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 12,
+    padding: 12,
     borderWidth: 1,
     borderColor: 'rgba(27,58,107,0.15)',
   },
   unitBlockTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.navy,
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  unitCards: { flexDirection: 'row', gap: 10 },
+  unitCards: { flexDirection: 'row', gap: 8 },
   unitCard: {
     flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 10,
+    padding: 10,
     alignItems: 'center',
   },
-  unitCardLabel: { fontSize: 10, color: COLORS.gray400, marginBottom: 4 },
+  unitCardLabel: { fontSize: 10, color: COLORS.gray400, marginBottom: 2 },
   unitCardValue: {
     fontFamily: FONTS.display,
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.navy,
   },
-  unitCardSub: { fontSize: 10, color: COLORS.gray400, marginTop: 2 },
+  unitCardSub: { fontSize: 10, color: COLORS.gray400, marginTop: 1 },
 
   // Cart actions
-  cartActions: { gap: 10 },
+  cartActions: { gap: 8 },
   addToCartBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -558,10 +707,10 @@ const styles = StyleSheet.create({
     gap: 10,
     borderWidth: 2,
     borderColor: COLORS.blue,
-    borderRadius: 16,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingVertical: 12,
   },
-  addToCartText: { fontSize: 15, fontWeight: 'bold', color: COLORS.blue },
+  addToCartText: { fontSize: 14, fontWeight: 'bold', color: COLORS.blue },
   buyNowBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -569,10 +718,10 @@ const styles = StyleSheet.create({
     gap: 10,
     borderWidth: 2,
     borderColor: COLORS.champagne,
-    borderRadius: 16,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingVertical: 12,
   },
-  buyNowText: { fontSize: 15, fontWeight: 'bold', color: COLORS.champagneDark },
+  buyNowText: { fontSize: 14, fontWeight: 'bold', color: COLORS.champagneDark },
   quantityStepper: {
     flexDirection: 'row',
     alignItems: 'center',

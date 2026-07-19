@@ -337,7 +337,7 @@ export default function HomeScreen() {
             <CollectionTile
               name="All Products"
               active={activeCollection === 'all'}
-              onPress={() => handleCollectionFilter('all')}
+              onPress={() => navigation.navigate('Products', { collectionId: null, collectionName: 'All Products' })}
             />
             {collections.map((col) => (
               <CollectionTile
@@ -345,7 +345,7 @@ export default function HomeScreen() {
                 name={col.name}
                 image={col.image}
                 active={activeCollection === col._id}
-                onPress={() => handleCollectionFilter(col._id)}
+                onPress={() => navigation.navigate('Products', { collectionId: col._id, collectionName: col.name })}
               />
             ))}
           </View>

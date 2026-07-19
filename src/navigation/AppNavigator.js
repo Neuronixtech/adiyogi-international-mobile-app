@@ -8,6 +8,7 @@ import { COLORS } from '../constants';
 import { useCart } from '../context/CartContext';
 
 import HomeScreen from '../screens/HomeScreen';
+import ProductsScreen from '../screens/ProductsScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import CartScreen from '../screens/CartScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
@@ -79,6 +80,11 @@ export default function AppNavigator() {
       <StatusBar style="light" />
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Main" component={TabNavigator} />
+        <Stack.Screen
+          name="Products"
+          component={ProductsScreen}
+          options={{ animation: 'slide_from_right' }}
+        />
         <Stack.Screen
           name="ProductDetail"
           component={ProductDetailScreen}

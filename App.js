@@ -1,4 +1,4 @@
-import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,10 +13,12 @@ export default function App() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <CartProvider>
-        <AppNavigator />
-      </CartProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <CartProvider>
+          <AppNavigator />
+        </CartProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

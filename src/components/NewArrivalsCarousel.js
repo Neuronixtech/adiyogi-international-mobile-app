@@ -128,10 +128,6 @@ function CarouselSlide({ product, onPress }) {
         </View>
       )}
 
-      {/* Gradient overlay */}
-      <View style={styles.slideOverlay} />
-
-      {/* Content */}
       <View style={styles.slideContent}>
         <Text style={styles.slideCode}>{product.itemCode}</Text>
         <Text style={styles.slideName} numberOfLines={1}>{product.name}</Text>
@@ -147,8 +143,6 @@ function CarouselSlide({ product, onPress }) {
     </TouchableOpacity>
   );
 }
-
-const SLIDE_H = 260;
 
 const styles = StyleSheet.create({
   section: {
@@ -184,36 +178,23 @@ const styles = StyleSheet.create({
   },
   slide: {
     width: SCREEN_W,
-    height: SLIDE_H,
     backgroundColor: '#1a3560',
-    position: 'relative',
     overflow: 'hidden',
   },
   slideImage: {
     width: '100%',
-    height: '100%',
+    height: 260,
   },
   slideImagePlaceholder: {
-    flex: 1,
+    width: '100%',
+    height: 260,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  slideOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '70%',
-    backgroundColor: 'transparent',
-    // gradient-like fade via background
+    backgroundColor: '#1a3560',
   },
   slideContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     padding: 16,
-    backgroundColor: 'rgba(15,32,64,0.85)',
+    backgroundColor: '#1a3560',
   },
   slideCode: {
     fontFamily: FONTS.mono,

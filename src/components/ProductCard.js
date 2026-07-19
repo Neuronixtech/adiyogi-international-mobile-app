@@ -28,7 +28,7 @@ export default function ProductCard({ product, onPress }) {
             <Image
               source={{ uri: product.images[0] }}
               style={styles.image}
-              resizeMode="cover"
+              resizeMode="contain"
               onError={() => setImgError(true)}
             />
           ) : (
