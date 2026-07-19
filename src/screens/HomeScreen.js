@@ -189,46 +189,6 @@ export default function HomeScreen() {
           />
         )}
 
-        {/* ── COLLECTIONS GRID ── */}
-        {collections.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Browse By</Text>
-            <Text style={styles.sectionTitle}>Our Collections</Text>
-            <View style={styles.collectionsGrid}>
-              <CollectionTile
-                name="All Products"
-                active={activeCollection === 'all'}
-                onPress={() => handleCollectionFilter('all')}
-              />
-              {collections.map((col) => (
-                <CollectionTile
-                  key={col._id}
-                  name={col.name}
-                  image={col.image}
-                  active={activeCollection === col._id}
-                  onPress={() => handleCollectionFilter(col._id)}
-                />
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* ── HOW TO ORDER ── */}
-        <View style={[styles.section, { backgroundColor: COLORS.ivory }]}>
-          <Text style={styles.sectionLabel}>Simple & Easy</Text>
-          <Text style={styles.sectionTitle}>How to Place an Order</Text>
-          <View style={styles.howToGrid}>
-            {HOW_TO_STEPS.map((s) => (
-              <View key={s.step} style={styles.howToCard}>
-                <Text style={styles.howToIcon}>{s.icon}</Text>
-                <Text style={styles.howToStep}>STEP {s.step}</Text>
-                <Text style={styles.howToTitle}>{s.title}</Text>
-                <Text style={styles.howToDesc}>{s.desc}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
         {/* ── PRODUCTS ── */}
         <View style={[styles.section, { backgroundColor: COLORS.white }]}>
           {/* Section title + count */}
@@ -367,6 +327,46 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           )}
+        </View>
+
+        {/* ── COLLECTIONS GRID ── */}
+        {collections.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Browse By</Text>
+            <Text style={styles.sectionTitle}>Our Collections</Text>
+            <View style={styles.collectionsGrid}>
+              <CollectionTile
+                name="All Products"
+                active={activeCollection === 'all'}
+                onPress={() => handleCollectionFilter('all')}
+              />
+              {collections.map((col) => (
+                <CollectionTile
+                  key={col._id}
+                  name={col.name}
+                  image={col.image}
+                  active={activeCollection === col._id}
+                  onPress={() => handleCollectionFilter(col._id)}
+                />
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* ── HOW TO ORDER ── */}
+        <View style={[styles.section, { backgroundColor: COLORS.ivory }]}>
+          <Text style={styles.sectionLabel}>Simple & Easy</Text>
+          <Text style={styles.sectionTitle}>How to Place an Order</Text>
+          <View style={styles.howToGrid}>
+            {HOW_TO_STEPS.map((s) => (
+              <View key={s.step} style={styles.howToCard}>
+                <Text style={styles.howToIcon}>{s.icon}</Text>
+                <Text style={styles.howToStep}>STEP {s.step}</Text>
+                <Text style={styles.howToTitle}>{s.title}</Text>
+                <Text style={styles.howToDesc}>{s.desc}</Text>
+              </View>
+            ))}
+          </View>
         </View>
 
         {/* ── FOOTER ── */}
