@@ -330,28 +330,26 @@ export default function HomeScreen() {
         </View>
 
         {/* ── COLLECTIONS GRID ── */}
-        {collections.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Browse By</Text>
-            <Text style={styles.sectionTitle}>Our Collections</Text>
-            <View style={styles.collectionsGrid}>
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Browse By</Text>
+          <Text style={styles.sectionTitle}>Our Collections</Text>
+          <View style={styles.collectionsGrid}>
+            <CollectionTile
+              name="All Products"
+              active={activeCollection === 'all'}
+              onPress={() => handleCollectionFilter('all')}
+            />
+            {collections.map((col) => (
               <CollectionTile
-                name="All Products"
-                active={activeCollection === 'all'}
-                onPress={() => handleCollectionFilter('all')}
+                key={col._id}
+                name={col.name}
+                image={col.image}
+                active={activeCollection === col._id}
+                onPress={() => handleCollectionFilter(col._id)}
               />
-              {collections.map((col) => (
-                <CollectionTile
-                  key={col._id}
-                  name={col.name}
-                  image={col.image}
-                  active={activeCollection === col._id}
-                  onPress={() => handleCollectionFilter(col._id)}
-                />
-              ))}
-            </View>
+            ))}
           </View>
-        )}
+        </View>
 
         {/* ── HOW TO ORDER ── */}
         <View style={[styles.section, { backgroundColor: COLORS.ivory }]}>
