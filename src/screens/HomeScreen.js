@@ -238,7 +238,7 @@ export default function HomeScreen() {
                     styles.chip,
                     activeCollection === col._id && styles.chipActive,
                   ]}
-                  onPress={() => handleCollectionFilter(col._id)}
+                  onPress={() => navigation.navigate('Products', { collectionId: col._id === 'all' ? null : col._id, collectionName: col.name })}
                 >
                   <Text
                     style={[
@@ -394,13 +394,6 @@ export default function HomeScreen() {
                   <Text style={styles.footerLinkText}>{link.label}</Text>
                 </View>
               ))}
-              <TouchableOpacity
-                onPress={() => navigation.navigate('AdminLogin')}
-                style={[styles.footerLink, { marginTop: 8 }]}
-              >
-                <Ionicons name="shield-outline" size={14} color={COLORS.champagne} />
-                <Text style={[styles.footerLinkText, { color: COLORS.champagne }]}>Admin Panel</Text>
-              </TouchableOpacity>
             </View>
 
             {/* Contact column */}
