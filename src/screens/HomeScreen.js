@@ -8,11 +8,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import api from '../api/client';
 import ProductCard from '../components/ProductCard';
 import NewArrivalsCarousel from '../components/NewArrivalsCarousel';
 import { COLORS, FONTS, SPACING, ITEMS_PER_PAGE } from '../constants';
 import { useCart } from '../context/CartContext';
+import { cachedGet, clearCachedPrefix } from '../api/cachedApi';
 
 const { width } = Dimensions.get('window');
 const PHONE_NUMBERS = ['7975198804', '8123458984', '8722812222'];
@@ -44,8 +44,8 @@ export default function HomeScreen() {
 
   // Load collections once
   useEffect(() => {
-    api.get('/collections')
-      .then((r) => setCollections(r.data))
+    cachedGet('/collections')
+      .then((data) => setCollections(data))
       .catch(() => {});
   }, []);
 
@@ -54,8 +54,8 @@ export default function HomeScreen() {
     if (!collections.length) return;
     const col = collections.find((c) => c.slug === 'new-arrivals');
     if (!col) return;
-    api.get('/products', { params: { limit: 10, page: 1, collection: col._id } })
-      .then((r) => setNewArrivals(r.data.products?.filter((p) => p.images?.length > 0) ?? []))
+    cachedGet('/products', { limit: 10, page: 1, collection: col._id })
+      .then((data) => setNewArrivals(data.products?.filter((p) => p.images?.length > 0) ?? []))
       .catch(() => {});
   }, [collections]);
 
@@ -66,7 +66,7 @@ export default function HomeScreen() {
       const params = { page: currentPage, limit: ITEMS_PER_PAGE };
       if (debouncedSearch) params.search = debouncedSearch;
       if (activeCollection !== 'all') params.collection = activeCollection;
-      const { data } = await api.get('/products', { params });
+      const data = await cachedGet('/products', params, { skipCache: !!debouncedSearch });
       setProducts(data.products ?? []);
       setTotalProducts(data.total ?? 0);
       setTotalPages(data.pages ?? 1);
@@ -82,6 +82,7 @@ export default function HomeScreen() {
   const handleRefresh = async () => {
     setRefreshing(true);
     setCurrentPage(1);
+    clearCachedPrefix('/products');
     await fetchProducts();
     setRefreshing(false);
   };

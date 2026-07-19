@@ -7,7 +7,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import api from '../api/client';
+import { cachedGet } from '../api/cachedApi';
 import { useCart } from '../context/CartContext';
 import { formatCurrency } from '../utils/formatters';
 import { COLORS, FONTS, SPACING } from '../constants';
@@ -29,9 +29,8 @@ export default function ProductDetailScreen() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    api
-      .get(`/products/${productId}`)
-      .then((r) => { if (!cancelled) { setProduct(r.data); setSelectedImg(0); } })
+    cachedGet(`/products/${productId}`, {}, { ttlSeconds: 60 })
+      .then((data) => { if (!cancelled) { setProduct(data); setSelectedImg(0); } })
       .catch(() => { if (!cancelled) navigation.goBack(); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };

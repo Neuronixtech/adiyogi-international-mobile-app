@@ -6,10 +6,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import api from '../api/client';
 import ProductCard from '../components/ProductCard';
 import { COLORS, FONTS, SPACING, ITEMS_PER_PAGE } from '../constants';
 import { useCart } from '../context/CartContext';
+import { cachedGet } from '../api/cachedApi';
 
 export default function ProductsScreen() {
   const navigation = useNavigation();
@@ -39,7 +39,7 @@ export default function ProductsScreen() {
       const params = { page: currentPage, limit: ITEMS_PER_PAGE };
       if (collectionId) params.collection = collectionId;
       if (debouncedSearch) params.search = debouncedSearch;
-      const { data } = await api.get('/products', { params });
+      const data = await cachedGet('/products', params, { skipCache: !!debouncedSearch });
       setProducts(data.products ?? []);
       setTotalProducts(data.total ?? 0);
       setTotalPages(data.pages ?? 1);
